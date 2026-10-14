@@ -13,9 +13,14 @@ function measure() {
   const desktop = window.innerWidth >= 1024;
   const w = desktop ? PANEL_W * DESK_RATIO : PANEL_W;
   const h = PANEL_H + TRACK_PAD * 2;
-  const reserveY = desktop ? 120 : 180; // ruang untuk navigasi dan jarak
-  const max = desktop ? 0.9 : 1;
-  const s = Math.min((vw - 64) / w, (vh - reserveY) / h, max);
+  // desktop: reserveY = ~72px kebutuhan konten (py-4 section + tombol "Tutup")
+  //          + ~68px margin tepi atas/bawah -> muat tanpa scroll, tidak fullscreen.
+  // gutter  = total ruang horizontal (40px per sisi saat lebar jadi pembatas).
+  // max     = batas akhir; cuma relevan di layar >= 2K agar tidak kegedean.
+  const reserveY = desktop ? 140 : 180;
+  const gutter = desktop ? 80 : 64;
+  const max = desktop ? 1.5 : 1;
+  const s = Math.min((vw - gutter) / w, (vh - reserveY) / h, max);
   return { vw, desktop, s: Math.max(s, 0.35) };
 }
 
