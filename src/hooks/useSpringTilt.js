@@ -4,7 +4,14 @@ const clamp = (v) => Math.max(-1, Math.min(1, v));
 
 // Fisika ringan: kursor menggerakkan target, lalu nilai mengejar target dengan
 // pegas (sedikit memantul). Hasilnya dipublikasikan sebagai CSS variable
-// --tx dan --ty (-1..1) di elemen root, jadi seluruh efek 3D murni lewat CSS.
+// --tx dan --ty (-1..1) di elemen .tilt, jadi seluruh efek 3D murni lewat CSS.
+//
+// Catatan performa (biar hover terasa ringan):
+// - rect elemen di-cache dan divalidasi lewat ResizeObserver, jadi TIDAK ada
+//   pembacaan layout (getBoundingClientRect) di setiap pointermove.
+// - pointermove hanya menyimpan koordinat terakhir (passive); target spring
+//   dihitung maksimal 1x per frame saat loop fisika berjalan.
+// - variabel CSS hanya ditulis jika nilainya benar-benar berubah.
 export function useSpringTilt() {
   const rootRef = useRef(null);
 
@@ -16,8 +23,26 @@ export function useSpringTilt() {
     if (!fine.matches || reduce.matches) return;
 
     const s = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0 };
+    const pointer = { x: 0, y: 0 }; // posisi pointer terakhir (koordinat viewport)
+    let rect = el.getBoundingClientRect(); // cache; di-refresh oleh observer & saat pointer masuk
+    let inside = false;
     let raf = 0;
     let last = 0;
+    let px = null;
+    let py = null;
+
+    const setVars = () => {
+      const nx = s.x.toFixed(3);
+      const ny = s.y.toFixed(3);
+      if (nx !== px) {
+        el.style.setProperty("--tx", nx);
+        px = nx;
+      }
+      if (ny !== py) {
+        el.style.setProperty("--ty", ny);
+        py = ny;
+      }
+    };
 
     const step = (now) => {
       const dt = Math.min((now - last) / 1000, 0.032);
@@ -26,14 +51,23 @@ export function useSpringTilt() {
       s.vy += ((s.ty - s.y) * 90 - s.vy * 13) * dt;
       s.x += s.vx * dt;
       s.y += s.vy * dt;
-      el.style.setProperty("--tx", s.x.toFixed(4));
-      el.style.setProperty("--ty", s.y.toFixed(4));
       const settled =
-        Math.abs(s.tx - s.x) < 0.001 &&
-        Math.abs(s.ty - s.y) < 0.001 &&
-        Math.abs(s.vx) < 0.001 &&
-        Math.abs(s.vy) < 0.001;
-      raf = settled ? 0 : requestAnimationFrame(step);
+        Math.abs(s.tx - s.x) < 0.0015 &&
+        Math.abs(s.ty - s.y) < 0.0015 &&
+        Math.abs(s.vx) < 0.002 &&
+        Math.abs(s.vy) < 0.002;
+      if (settled) {
+        // snap ke target lalu berhenti: mengakhiri loop rAF lebih cepat
+        s.x = s.tx;
+        s.y = s.ty;
+        s.vx = 0;
+        s.vy = 0;
+        setVars();
+        raf = 0;
+        return;
+      }
+      setVars();
+      raf = requestAnimationFrame(step);
     };
 
     const kick = () => {
@@ -42,23 +76,40 @@ export function useSpringTilt() {
       raf = requestAnimationFrame(step);
     };
 
-    const onMove = (e) => {
-      const r = el.getBoundingClientRect();
-      s.tx = clamp(((e.clientX - r.left) / r.width - 0.5) * 2);
-      s.ty = clamp(((e.clientY - r.top) / r.height - 0.5) * 2);
+    const aim = () => {
+      s.tx = clamp(((pointer.x - rect.left) / rect.width - 0.5) * 2);
+      s.ty = clamp(((pointer.y - rect.top) / rect.height - 0.5) * 2);
       kick();
     };
+
+    const onMove = (e) => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      if (!inside) {
+        inside = true;
+        rect = el.getBoundingClientRect(); // sekali saja saat pointer masuk
+      }
+      aim();
+    };
     const onLeave = () => {
+      inside = false;
       s.tx = 0;
       s.ty = 0;
       kick();
     };
 
-    el.addEventListener("pointermove", onMove);
+    // ukuran/posisi elemen berubah (resize, rotate, dsb.) -> refresh cache rect
+    const ro = new ResizeObserver(() => {
+      rect = el.getBoundingClientRect();
+    });
+    ro.observe(el);
+
+    el.addEventListener("pointermove", onMove, { passive: true });
     el.addEventListener("pointerleave", onLeave);
     return () => {
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerleave", onLeave);
+      ro.disconnect();
       cancelAnimationFrame(raf);
     };
   }, []);

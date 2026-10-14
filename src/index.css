@@ -53,7 +53,9 @@ body {
   .book-closed {
     transform: translateX(414px);
   }
-  /* bayangan seluruh buku, muncul setelah terbuka */
+  /* bayangan seluruh buku, muncul setelah terbuka.
+     Bayangan dibuat statis lalu digeser lewat transform: perubahan per frame
+     hanya komposit GPU, bukan repaint bayangan blur 60px seperti sebelumnya. */
   .book-track::before {
     content: "";
     position: absolute;
@@ -61,8 +63,9 @@ body {
     z-index: -1;
     pointer-events: none;
     opacity: 0;
-    box-shadow:
-      calc(var(--tx, 0) * -22px) calc(30px + var(--ty, 0) * -10px) 60px rgb(0 0 0 / 0.6);
+    box-shadow: -22px 30px 60px rgb(0 0 0 / 0.6);
+    transform: translate3d(calc(var(--tx, 0) * -22px), calc(var(--ty, 0) * -10px), 0);
+    will-change: transform;
     transition: opacity 600ms ease 0.6s;
   }
   .book-track.is-open::before {
@@ -77,8 +80,10 @@ body {
   will-change: transform;
 }
 .panel-shadow {
-  box-shadow:
-    calc(var(--tx, 0) * -14px) calc(18px + var(--ty, 0) * -8px) 40px rgb(0 0 0 / 0.55);
+  /* statis: bergantung pada --tx/--ty membuat box-shadow dihitung ulang tiap
+     frame saat hover (biaya repaint besar). Efek wobble bayangan di sini
+     praktis tak terlihat, jadi nilai performanya jauh lebih baik. */
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
 }
 @media (min-width: 1024px) {
   .panel-shadow {
@@ -134,12 +139,16 @@ body {
   outline-offset: 3px;
 }
 
+/* Hormati "reduce motion" TANPA mematikan semua animasi.
+   Blok global `* { animation/transition: 0.01ms }` menyebabkan HP yang punya
+   setelan OS "hapus animasi" kehilangan SEMUA animasi (sampul, panel, lightbox).
+   Di sini hanya gerak besar / loop tak berujung yang dimatikan; tilt/parallax
+   sudah dijeda di JS (useSpringTilt). */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .book-track {
+    transition: none;
+  }
+  .eq-on .eq-bar {
+    animation: none;
   }
 }

@@ -120,8 +120,8 @@ export default function Book({ data, phase, onOpen, onClose }) {
 
   return (
     <LightboxProvider items={items}>
-      <section ref={tiltRef} aria-label="Scrapbook ulang tahun" className="w-full min-w-0 py-4">
-        <div className="tilt">
+      <section aria-label="Scrapbook ulang tahun" className="w-full min-w-0 py-4">
+        <div ref={tiltRef} className="tilt">
           {/* stage: kotak berukuran akhir (sudah diskalakan) */}
           <div
             className="relative mx-auto"
@@ -236,7 +236,7 @@ export default function Book({ data, phase, onOpen, onClose }) {
         >
           <p
             aria-hidden="true"
-            className={`h-7 font-hand text-2xl leading-7 text-chalk/70 transition-opacity duration-500 ${!seen && index === 0 ? "animate-pulse opacity-100" : "opacity-0"}`}
+            className={`h-7 font-hand text-2xl leading-7 text-chalk/70 transition-opacity duration-500 motion-reduce:animate-none ${!seen && index === 0 ? "animate-pulse opacity-100" : "opacity-0"}`}
           >
             geser ke kanan →
           </p>
