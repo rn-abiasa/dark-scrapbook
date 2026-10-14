@@ -5,7 +5,6 @@ import { LightboxProvider } from "./Lightbox";
 import Photo from "./Photo";
 import SongCard from "./SongCard";
 import { Arrow, Butterfly, Flower, Heart, Plane, Sparkle } from "./Doodles";
-import { useSpringTilt } from "../hooks/useSpringTilt";
 import { DESK_RATIO, PANEL_H, PANEL_W, TRACK_PAD, useFit } from "../hooks/useFit";
 
 const TABS = ["Surat", "Kenangan", "Penutup"];
@@ -14,16 +13,17 @@ const PANEL_LABELS = ["Surat pembuka", "Foto favorit", "Surat penutup"];
 // Pembungkus tiap panel. Panel 2 dan 3 (`staged`) tersembunyi saat tertutup,
 // lalu muncul bergeser keluar setelah sampul terbuka. Di mobile, panel yang
 // tidak sedang dilihat dibuat redup (`dim`) agar jelas mana yang aktif.
-function Slot({ children, staged = false, closed = false, dim = false }) {
+function Slot({ i, children, staged = false, closed = false, dim = false }) {
   const stage = staged
     ? closed
       ? "invisible -translate-x-6 opacity-0"
       : "translate-x-0 opacity-100 delay-700"
     : "";
-  const dimmed = dim ? "max-lg:opacity-45 max-lg:scale-[0.96]" : "";
+  const dimmed = dim ? "max-lg:opacity-45" : "";
   return (
     <div
-      className={`relative flex w-[360px] shrink-0 snap-center flex-col transition-[opacity,visibility,translate,scale] duration-500 lg:w-auto ${stage} ${dimmed}`}
+      data-i={i}
+      className={`relative flex w-[360px] shrink-0 snap-center flex-col transition-[opacity,visibility,translate] duration-300 max-lg:will-change-[opacity] lg:w-auto ${stage} ${dimmed}`}
     >
       {children}
     </div>
@@ -75,7 +75,6 @@ const TILES = [
 export default function Book({ data, phase, onOpen, onClose }) {
   const { name, age, song, left, center, right } = data;
   const closed = phase === "closed";
-  const tiltRef = useSpringTilt();
   const { s, desktop, vw } = useFit();
   const trackRef = useRef(null);
   const [index, setIndex] = useState(0);
@@ -93,22 +92,25 @@ export default function Book({ data, phase, onOpen, onClose }) {
     if (closed) trackRef.current?.scrollTo({ left: 0, behavior: "smooth" });
   }, [closed]);
 
-  const onScroll = () => {
-    const el = trackRef.current;
-    if (!el) return;
-    if (el.scrollLeft > 24) setSeen(true);
-    const mid = el.scrollLeft + el.clientWidth / 2;
-    let best = 0;
-    let bestDist = Infinity;
-    [...el.children].forEach((c, i) => {
-      const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
-      if (d < bestDist) {
-        bestDist = d;
-        best = i;
-      }
-    });
-    setIndex(best);
-  };
+  // Halaman aktif dideteksi lewat IntersectionObserver: hanya terpicu saat panel
+  // berganti, bukan di setiap event scroll (hemat render dan baca layout).
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || desktop) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.intersectionRatio < 0.6) return;
+          const i = Number(e.target.dataset.i);
+          setIndex(i);
+          if (i > 0) setSeen(true);
+        });
+      },
+      { root: track, threshold: 0.6 },
+    );
+    [...track.children].forEach((c) => io.observe(c));
+    return () => io.disconnect();
+  }, [desktop]);
 
   const goTo = (i) => {
     const el = trackRef.current;
@@ -121,7 +123,7 @@ export default function Book({ data, phase, onOpen, onClose }) {
   return (
     <LightboxProvider items={items}>
       <section aria-label="Scrapbook ulang tahun" className="w-full min-w-0 py-4">
-        <div ref={tiltRef} className="tilt">
+        <div>
           {/* stage: kotak berukuran akhir (sudah diskalakan) */}
           <div
             className="relative mx-auto"
@@ -138,14 +140,13 @@ export default function Book({ data, phase, onOpen, onClose }) {
             >
               <div
                 ref={trackRef}
-                onScroll={onScroll}
                 style={{ paddingInline: desktop ? 0 : mobilePad }}
                 className={`book-track relative flex h-full w-full snap-x snap-mandatory gap-3 py-4 lg:grid lg:snap-none lg:grid-cols-[1fr_1.3fr_1fr] lg:gap-0 lg:overflow-visible ${
-                  closed ? "book-closed overflow-x-hidden" : "book-open is-open overflow-x-auto"
+                  closed ? "book-closed overflow-x-hidden" : "is-open overflow-x-auto"
                 } overflow-y-hidden`}
               >
                 {/* panel kiri + sampul yang menempel di atasnya */}
-                <Slot dim={!closed && index !== 0}>
+                <Slot i={0} dim={!closed && index !== 0}>
                   <Panel label={PANEL_LABELS[0]} inert={closed}>
                     <div className="relative">
                       <Photo {...left.photoTop} index={0} rotate={-2} ratio="aspect-[5/4]" className="w-[58%]" tape />
@@ -166,7 +167,7 @@ export default function Book({ data, phase, onOpen, onClose }) {
                 </Slot>
 
                 {/* panel tengah */}
-                <Slot staged closed={closed} dim={!closed && index !== 1}>
+                <Slot i={1} staged closed={closed} dim={!closed && index !== 1}>
                   <Panel fold label={PANEL_LABELS[1]}>
                     <p className="text-center font-hand text-3xl leading-none text-chalk">
                       {center.greeting} {name}
@@ -203,7 +204,7 @@ export default function Book({ data, phase, onOpen, onClose }) {
                 </Slot>
 
                 {/* panel kanan */}
-                <Slot staged closed={closed} dim={!closed && index !== 2}>
+                <Slot i={2} staged closed={closed} dim={!closed && index !== 2}>
                   <Panel fold label={PANEL_LABELS[2]}>
                     <Butterfly className="absolute left-[40%] top-1 w-10 -rotate-12" />
                     <div className="flex items-start gap-3">

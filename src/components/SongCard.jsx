@@ -5,7 +5,7 @@ const ID_RE = /^[\w-]{11}$/;
 
 function Eq({ on }) {
   return (
-    <span className={`eq inline-flex h-3 items-end gap-[2px] ${on ? "eq-on" : ""}`} aria-hidden="true">
+    <span className={`inline-flex h-3 items-end gap-[2px] ${on ? "eq-on" : ""}`} aria-hidden="true">
       <i className="eq-bar" />
       <i className="eq-bar" />
       <i className="eq-bar" />

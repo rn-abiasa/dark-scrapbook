@@ -32,7 +32,7 @@ export default function Photo({
         className={`relative block w-full min-h-0 flex-1 cursor-zoom-in overflow-hidden ${ratio}`}
       >
         {src ? (
-          <img src={src} alt={alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={src} alt={alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
           <span
             className="absolute inset-0 grid place-items-center font-hand text-2xl leading-none text-chalk/70"

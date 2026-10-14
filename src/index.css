@@ -5,8 +5,6 @@
   --color-night: #0b0a09;
   --color-chalk: #ece7dc;
   --color-bunting: #e9b6bf;
-  --color-wing: #e2b13c;
-  --color-sticker: #8ea6bd;
   --font-hand: "Reenie Beanie", "Segoe Print", cursive;
   --font-type: "Special Elite", "Courier New", monospace;
 }
@@ -53,9 +51,7 @@ body {
   .book-closed {
     transform: translateX(414px);
   }
-  /* bayangan seluruh buku, muncul setelah terbuka.
-     Bayangan dibuat statis lalu digeser lewat transform: perubahan per frame
-     hanya komposit GPU, bukan repaint bayangan blur 60px seperti sebelumnya. */
+  /* bayangan seluruh buku, muncul setelah terbuka (statis). */
   .book-track::before {
     content: "";
     position: absolute;
@@ -64,8 +60,6 @@ body {
     pointer-events: none;
     opacity: 0;
     box-shadow: -22px 30px 60px rgb(0 0 0 / 0.6);
-    transform: translate3d(calc(var(--tx, 0) * -22px), calc(var(--ty, 0) * -10px), 0);
-    will-change: transform;
     transition: opacity 600ms ease 0.6s;
   }
   .book-track.is-open::before {
@@ -73,16 +67,8 @@ body {
   }
 }
 
-/* efek 3D saat hover: dikendalikan variabel --tx / --ty dari useSpringTilt */
-.tilt {
-  transform: perspective(1400px) rotateY(calc(var(--tx, 0) * 5deg))
-    rotateX(calc(var(--ty, 0) * -4deg));
-  will-change: transform;
-}
 .panel-shadow {
-  /* statis: bergantung pada --tx/--ty membuat box-shadow dihitung ulang tiap
-     frame saat hover (biaya repaint besar). Efek wobble bayangan di sini
-     praktis tak terlihat, jadi nilai performanya jauh lebih baik. */
+  /* bayangan statis agar tidak dihitung ulang tiap frame (biaya repaint). */
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
 }
 @media (min-width: 1024px) {
@@ -142,8 +128,7 @@ body {
 /* Hormati "reduce motion" TANPA mematikan semua animasi.
    Blok global `* { animation/transition: 0.01ms }` menyebabkan HP yang punya
    setelan OS "hapus animasi" kehilangan SEMUA animasi (sampul, panel, lightbox).
-   Di sini hanya gerak besar / loop tak berujung yang dimatikan; tilt/parallax
-   sudah dijeda di JS (useSpringTilt). */
+   Di sini hanya gerak besar / loop tak berujung yang dimatikan. */
 @media (prefers-reduced-motion: reduce) {
   .book-track {
     transition: none;

@@ -18,8 +18,12 @@ export default function Cover({ name, age, phase, onOpen }) {
       style={{
         perspective: "1800px",
         opacity: closed ? 1 : 0,
+        // disembunyikan total setelah ayunan selesai agar tidak ikut dirender/di-composite
+        visibility: closed ? "visible" : "hidden",
         // memudar hanya di akhir ayunan, saat sampul sudah tegak lurus layar
-        transition: closed ? "opacity 120ms" : "opacity 350ms ease 750ms",
+        transition: closed
+          ? "opacity 120ms"
+          : "opacity 350ms ease 750ms, visibility 0s linear 1.1s",
       }}
     >
       <div
