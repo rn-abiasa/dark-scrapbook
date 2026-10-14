@@ -1,10 +1,14 @@
 import Tape from "./Tape";
+import { useLightbox } from "./lightboxContext";
+import { placeholderStyle } from "./placeholder";
 
-// Foto bingkai putih. Tanpa `src`, tampil kotak abu sebagai placeholder.
+// Foto bingkai putih yang "ditempel" rata di kertas (bayangan tipis, tanpa mengapung).
+// Klik untuk memperbesar (lightbox).
 export default function Photo({
   src,
   label = "Foto",
   alt = "",
+  index = 0,
   rotate = 0,
   ratio = "aspect-[4/5]",
   tape = false,
@@ -12,21 +16,32 @@ export default function Photo({
   className = "",
   style,
 }) {
+  const { open } = useLightbox();
+  const name = alt || label;
+
   return (
     <figure
-      className={`relative flex flex-col bg-chalk p-1.5 shadow-[0_6px_14px_rgba(0,0,0,0.55)] ${className}`}
+      className={`relative flex flex-col bg-chalk p-1.5 shadow-[0_1px_1px_rgba(0,0,0,0.6)] ${className}`}
       style={{ transform: `rotate(${rotate}deg)`, ...style }}
     >
       {tape && <Tape className={tapeClass} rotate={rotate * -1.5 - 3} />}
-      <div className={`relative min-h-0 flex-1 overflow-hidden ${ratio}`}>
+      <button
+        type="button"
+        onClick={() => open(index)}
+        aria-label={`Perbesar foto: ${name}`}
+        className={`relative block w-full min-h-0 flex-1 cursor-zoom-in overflow-hidden ${ratio}`}
+      >
         {src ? (
           <img src={src} alt={alt} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-[linear-gradient(145deg,#4a4640,#2b2824)] font-type text-[11px] text-chalk/55">
+          <span
+            className="absolute inset-0 grid place-items-center font-hand text-2xl leading-none text-chalk/70"
+            style={placeholderStyle(index)}
+          >
             {label}
-          </div>
+          </span>
         )}
-      </div>
+      </button>
     </figure>
   );
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Book from "./components/Book";
-import Cover from "./components/Cover";
 import { content } from "./data/content";
 
 export default function App() {
@@ -14,32 +13,16 @@ export default function App() {
   }, [phase]);
 
   return (
-    <main className="min-h-dvh">
+    <main className="grid min-h-dvh place-items-center overflow-x-clip">
       <h1 className="sr-only">
         Happy Birthday {content.name}, {content.age} tahun
       </h1>
-
-      {phase === "open" ? (
-        <div className="book-in pb-10">
-          <Book data={content} name={content.name} />
-          <button
-            type="button"
-            onClick={() => setPhase("closed")}
-            className="mx-auto block font-hand text-2xl text-chalk/60 underline underline-offset-4 hover:text-chalk"
-          >
-            Tutup scrapbook
-          </button>
-        </div>
-      ) : (
-        <div className="grid min-h-dvh place-items-center py-8">
-          <Cover
-            name={content.name}
-            age={content.age}
-            phase={phase}
-            onOpen={() => setPhase("opening")}
-          />
-        </div>
-      )}
+      <Book
+        data={content}
+        phase={phase}
+        onOpen={() => setPhase("opening")}
+        onClose={() => setPhase("closed")}
+      />
     </main>
   );
 }

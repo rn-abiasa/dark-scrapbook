@@ -39,32 +39,94 @@ body {
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
-/* jalur geser panel: mobile = swipe, desktop = 3 panel berdampingan */
+/* jalur geser panel: mobile = swipe, desktop = 3 panel berdampingan.
+   Ukuran desain tetap (360x640 per panel), lalu diskalakan agar muat di layar. */
 .book-track {
-  padding-inline: max(6vw, calc(50vw - 220px));
   scrollbar-width: none;
+  transition: transform 1100ms cubic-bezier(0.45, 0.05, 0.2, 1);
 }
 .book-track::-webkit-scrollbar {
   display: none;
 }
 @media (min-width: 1024px) {
-  .book-track {
-    padding-inline: 2rem;
+  /* saat tertutup, panel pertama (dengan sampul) ada di tengah buku: 1.15 x lebar panel */
+  .book-closed {
+    transform: translateX(414px);
+  }
+  /* bayangan seluruh buku, muncul setelah terbuka */
+  .book-track::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow:
+      calc(var(--tx, 0) * -22px) calc(30px + var(--ty, 0) * -10px) 60px rgb(0 0 0 / 0.6);
+    transition: opacity 600ms ease 0.6s;
+  }
+  .book-track.is-open::before {
+    opacity: 1;
   }
 }
 
-@keyframes book-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+/* efek 3D saat hover: dikendalikan variabel --tx / --ty dari useSpringTilt */
+.tilt {
+  transform: perspective(1400px) rotateY(calc(var(--tx, 0) * 5deg))
+    rotateX(calc(var(--ty, 0) * -4deg));
+  will-change: transform;
+}
+.panel-shadow {
+  box-shadow:
+    calc(var(--tx, 0) * -14px) calc(18px + var(--ty, 0) * -8px) 40px rgb(0 0 0 / 0.55);
+}
+@media (min-width: 1024px) {
+  .panel-shadow {
+    box-shadow: none;
   }
 }
-.book-in {
-  animation: book-in 650ms ease-out both;
+
+/* equalizer di kartu lagu */
+.eq-bar {
+  display: block;
+  width: 3px;
+  height: 100%;
+  background: currentColor;
+  transform-origin: bottom;
+  transform: scaleY(0.35);
+}
+.eq-on .eq-bar {
+  animation: eq 700ms ease-in-out infinite alternate;
+}
+.eq-on .eq-bar:nth-child(2) {
+  animation-delay: -250ms;
+}
+.eq-on .eq-bar:nth-child(3) {
+  animation-delay: -500ms;
+}
+@keyframes eq {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* lightbox foto */
+@keyframes lb-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lb-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) rotate(-1.5deg);
+  }
+}
+.lightbox {
+  animation: lb-fade 200ms ease-out both;
+}
+.lightbox-card {
+  animation: lb-pop 280ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
 
 :focus-visible {
