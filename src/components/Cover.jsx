@@ -20,10 +20,11 @@ export default function Cover({ name, age, phase, onOpen }) {
         opacity: closed ? 1 : 0,
         // disembunyikan total setelah ayunan selesai agar tidak ikut dirender/di-composite
         visibility: closed ? "visible" : "hidden",
-        // memudar hanya di akhir ayunan, saat sampul sudah tegak lurus layar
+        // memudar hanya di akhir ayunan, saat sampul sudah tegak lurus layar.
+        // Saat menutup, sampul baru kembali setelah panel 2 dan 3 selesai terlipat.
         transition: closed
-          ? "opacity 120ms"
-          : "opacity 350ms ease 750ms, visibility 0s linear 1.1s",
+          ? "opacity 120ms ease 880ms, visibility 0s linear 880ms"
+          : "opacity 450ms ease 650ms, visibility 0s linear 1.1s",
       }}
     >
       <div
@@ -32,7 +33,10 @@ export default function Cover({ name, age, phase, onOpen }) {
           transformStyle: "preserve-3d",
           transformOrigin: "left center",
           transform: closed ? "rotateY(0deg)" : "rotateY(-172deg)",
-          transition: "transform 1050ms cubic-bezier(0.55, 0.04, 0.25, 1)",
+          // buka: awal lebih responsif (tidak "lengket"), melambat di ujung; tutup: tetap seperti semula
+          transition: closed
+            ? "transform 1050ms cubic-bezier(0.55, 0.04, 0.25, 1) 900ms"
+            : "transform 1100ms cubic-bezier(0.3, 0.05, 0.2, 1)",
         }}
       >
         <div

@@ -30,7 +30,7 @@ export const content = {
   },
 
   center: {
-    greeting: "Happy Birthday dear",
+    greeting: "Sella 🤍",
     favourite: "Favourite person",
     // 8 kotak kolase berbentuk hati: 2 besar di atas, 4 di tengah, 2 di bawah
     collage: [

@@ -5,32 +5,59 @@ import { LightboxProvider } from "./Lightbox";
 import Photo from "./Photo";
 import SongCard from "./SongCard";
 import { Arrow, Butterfly, Flower, Heart, Plane, Sparkle } from "./Doodles";
-import { DESK_RATIO, PANEL_H, PANEL_W, TRACK_PAD, useFit } from "../hooks/useFit";
+import {
+  DESK_RATIO,
+  PANEL_H,
+  PANEL_W,
+  TRACK_PAD,
+  useFit,
+} from "../hooks/useFit";
 
 const TABS = ["Surat", "Kenangan", "Penutup"];
 const PANEL_LABELS = ["Surat pembuka", "Foto favorit", "Surat penutup"];
 
-// Pembungkus tiap panel. Panel 2 dan 3 (`staged`) tersembunyi saat tertutup,
-// lalu muncul bergeser keluar setelah sampul terbuka. Di mobile, panel yang
-// tidak sedang dilihat dibuat redup (`dim`) agar jelas mana yang aktif.
-function Slot({ i, children, staged = false, closed = false, dim = false }) {
-  const stage = staged
-    ? closed
-      ? "invisible -translate-x-6 opacity-0"
-      : "translate-x-0 opacity-100 delay-700"
-    : "";
-  const dimmed = dim ? "max-lg:opacity-45" : "";
+// Pembungkus tiap panel. Panel 2 dan 3 dilipat (Z-fold) saat tertutup: tiap panel
+// berputar dari garis lipat di tepi kirinya. Pembungkus luar tidak ikut berputar,
+// jadi snap, ukuran, dan IntersectionObserver tetap memakai kotak aslinya.
+function Slot({ i, children, folded = false, delay = 0 }) {
   return (
     <div
       data-i={i}
-      className={`relative flex w-[360px] shrink-0 snap-center flex-col transition-[opacity,visibility,translate] duration-300 max-lg:will-change-[opacity] lg:w-auto ${stage} ${dimmed}`}
+      className="relative flex w-[360px] shrink-0 snap-center flex-col lg:w-auto"
+      style={{ perspective: "2400px" }}
     >
-      {children}
+      {i === 0 ? (
+        children
+      ) : (
+        <div
+          className="fold relative flex min-h-0 flex-1 flex-col"
+          style={{
+            transform: folded ? "rotateY(-172deg)" : "rotateY(0deg)",
+            "--fold-delay": `${delay}ms`,
+            // buka: lebih lambat dan sedikit "memantul" saat kertas mendarat; tutup: tetap seperti semula
+            "--fold-dur": folded ? "800ms" : "1000ms",
+            "--fold-ease": folded
+              ? "cubic-bezier(0.5, 0.05, 0.25, 1)"
+              : "cubic-bezier(0.25, 1.15, 0.4, 1)",
+          }}
+        >
+          {children}
+          {/* bayangan lipatan: gelap saat terlipat, terang saat terbuka (hanya animasi opacity) */}
+          <span
+            aria-hidden="true"
+            className="fold-shade"
+            style={{ opacity: folded ? 1 : 0 }}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-function Panel({ children, fold = false, label, inert = false }) {
+// Di mobile, panel yang tidak sedang dilihat diredupkan lewat lapisan tipis (`dim`).
+// Yang dianimasikan hanya opacity lapisan solid ini, bukan seluruh panel, supaya
+// browser tidak perlu me-render ulang panel (foto, tekstur, bayangan) tiap pindah halaman.
+function Panel({ children, fold = false, label, inert = false, dim = false }) {
   return (
     <article
       aria-label={label}
@@ -44,6 +71,10 @@ function Panel({ children, fold = false, label, inert = false }) {
         />
       )}
       {children}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 z-20 bg-night opacity-0 transition-opacity duration-300 ${dim ? "max-lg:opacity-55" : ""}`}
+      />
     </article>
   );
 }
@@ -51,7 +82,9 @@ function Panel({ children, fold = false, label, inert = false }) {
 // Tulisan tangan ala kapur putih; tiap paragraf sedikit miring.
 function Letter({ lines, className = "" }) {
   return (
-    <div className={`space-y-2 font-hand text-[1.5rem] leading-[1.08] tracking-wide text-chalk ${className}`}>
+    <div
+      className={`space-y-2 font-hand text-[1.5rem] leading-[1.08] tracking-wide text-chalk ${className}`}
+    >
       {lines.map((line, i) => (
         <p key={i} style={{ transform: `rotate(${i % 2 ? 0.6 : -0.8}deg)` }}>
           {line}
@@ -81,7 +114,13 @@ export default function Book({ data, phase, onOpen, onClose }) {
   const [seen, setSeen] = useState(false);
 
   // urutan galeri lightbox: sama dengan urutan foto di halaman
-  const items = [left.photoTop, left.photoBottom, ...center.collage, right.photoTop, right.photoBottom];
+  const items = [
+    left.photoTop,
+    left.photoBottom,
+    ...center.collage,
+    right.photoTop,
+    right.photoBottom,
+  ];
 
   const trackH = PANEL_H + TRACK_PAD * 2;
   // ukuran desain (belum diskalakan): desktop = 3 panel, mobile = selebar layar / skala
@@ -117,12 +156,18 @@ export default function Book({ data, phase, onOpen, onClose }) {
     const c = el?.children[i];
     if (!c) return;
     setSeen(true);
-    el.scrollTo({ left: c.offsetLeft + c.offsetWidth / 2 - el.clientWidth / 2, behavior: "smooth" });
+    el.scrollTo({
+      left: c.offsetLeft + c.offsetWidth / 2 - el.clientWidth / 2,
+      behavior: "smooth",
+    });
   };
 
   return (
     <LightboxProvider items={items}>
-      <section aria-label="Scrapbook ulang tahun" className="w-full min-w-0 py-4">
+      <section
+        aria-label="Scrapbook ulang tahun"
+        className="w-full min-w-0 py-4"
+      >
         <div>
           {/* stage: kotak berukuran akhir (sudah diskalakan) */}
           <div
@@ -142,23 +187,46 @@ export default function Book({ data, phase, onOpen, onClose }) {
                 ref={trackRef}
                 style={{ paddingInline: desktop ? 0 : mobilePad }}
                 className={`book-track relative flex h-full w-full snap-x snap-mandatory gap-3 py-4 lg:grid lg:snap-none lg:grid-cols-[1fr_1.3fr_1fr] lg:gap-0 lg:overflow-visible ${
-                  closed ? "book-closed overflow-x-hidden" : "is-open overflow-x-auto"
+                  closed
+                    ? "book-closed overflow-x-hidden"
+                    : "is-open overflow-x-auto"
                 } overflow-y-hidden`}
               >
                 {/* panel kiri + sampul yang menempel di atasnya */}
-                <Slot i={0} dim={!closed && index !== 0}>
-                  <Panel label={PANEL_LABELS[0]} inert={closed}>
+                <Slot i={0}>
+                  <Panel
+                    label={PANEL_LABELS[0]}
+                    inert={closed}
+                    dim={!closed && index !== 0}
+                  >
                     <div className="relative">
-                      <Photo {...left.photoTop} index={0} rotate={-2} ratio="aspect-[5/4]" className="w-[58%]" tape />
+                      <Photo
+                        {...left.photoTop}
+                        index={0}
+                        rotate={-2}
+                        ratio="aspect-[5/4]"
+                        className="w-[58%]"
+                        tape
+                      />
                       <Flower className="absolute -bottom-4 right-6 w-14 rotate-12" />
                       <Heart className="absolute right-8 top-2 w-6 text-chalk/80" />
                     </div>
                     <div>
-                      <p className="font-type text-xs leading-relaxed text-chalk/80">{left.intro}</p>
+                      <p className="font-type text-xs leading-relaxed text-chalk/80">
+                        {left.intro}
+                      </p>
                       <Letter lines={left.body} className="mt-2" />
                     </div>
                     <div className="relative mt-auto">
-                      <Photo {...left.photoBottom} index={1} rotate={2} ratio="aspect-[5/4]" className="w-[62%]" tape tapeClass="-top-2 -left-3" />
+                      <Photo
+                        {...left.photoBottom}
+                        index={1}
+                        rotate={2}
+                        ratio="aspect-[5/4]"
+                        className="w-[62%]"
+                        tape
+                        tapeClass="-top-2 -left-3"
+                      />
                       <Plane className="absolute bottom-2 right-4 w-9 -rotate-6 text-chalk/80" />
                       <Heart className="absolute bottom-12 right-14 w-4 text-chalk/70" />
                     </div>
@@ -167,15 +235,23 @@ export default function Book({ data, phase, onOpen, onClose }) {
                 </Slot>
 
                 {/* panel tengah */}
-                <Slot i={1} staged closed={closed} dim={!closed && index !== 1}>
-                  <Panel fold label={PANEL_LABELS[1]}>
-                    <p className="text-center font-hand text-3xl leading-none text-chalk">
-                      {center.greeting} {name}
-                    </p>
-                    <div className="flex flex-col items-center" aria-hidden="true">
+                <Slot i={1} folded={closed} delay={closed ? 400 : 450}>
+                  <Panel
+                    fold
+                    label={PANEL_LABELS[1]}
+                    inert={closed}
+                    dim={!closed && index !== 1}
+                  >
+                    <div
+                      className="flex flex-col items-center"
+                      aria-hidden="true"
+                    >
                       <Bunting text="HAPPY" w={200} />
                       <Bunting text="BIRTHDAY" w={260} className="-mt-3" />
                     </div>
+                    <p className="text-center font-hand text-4xl leading-none text-chalk">
+                      {name}
+                    </p>
                     <div className="flex items-end gap-2 font-hand text-3xl leading-none text-chalk">
                       <span>{center.favourite}</span>
                       <Arrow className="mb-1 w-5 text-chalk/80" />
@@ -197,31 +273,60 @@ export default function Book({ data, phase, onOpen, onClose }) {
                       <p className="flex items-center gap-2 font-type text-xs text-chalk/75">
                         <Heart className="w-4 shrink-0" /> {center.call}
                       </p>
-                      <p className="font-hand text-2xl leading-[1.08] text-chalk">{center.note}</p>
+                      <p className="font-hand text-2xl leading-[1.08] text-chalk">
+                        {center.note}
+                      </p>
                     </div>
                     <Sparkle className="absolute right-6 top-24 w-3 text-chalk/70" />
                   </Panel>
                 </Slot>
 
                 {/* panel kanan */}
-                <Slot i={2} staged closed={closed} dim={!closed && index !== 2}>
-                  <Panel fold label={PANEL_LABELS[2]}>
+                <Slot i={2} folded={closed} delay={closed ? 0 : 850}>
+                  <Panel
+                    fold
+                    label={PANEL_LABELS[2]}
+                    inert={closed}
+                    dim={!closed && index !== 2}
+                  >
                     <Butterfly className="absolute left-[40%] top-1 w-10 -rotate-12" />
                     <div className="flex items-start gap-3">
                       <div className="min-w-0 flex-1 pt-3">
-                        <p className="font-type text-xs text-chalk/80">{right.intro}</p>
+                        <p className="font-type text-xs text-chalk/80">
+                          {right.intro}
+                        </p>
                         <Letter lines={right.body} className="mt-2" />
                       </div>
-                      <Photo {...right.photoTop} index={10} rotate={2} ratio="aspect-[4/5]" className="w-[42%] shrink-0" tape tapeClass="-top-2 -right-2" />
+                      <Photo
+                        {...right.photoTop}
+                        index={10}
+                        rotate={2}
+                        ratio="aspect-[4/5]"
+                        className="w-[42%] shrink-0"
+                        tape
+                        tapeClass="-top-2 -right-2"
+                      />
                     </div>
                     <div className="relative mx-auto w-[88%]">
-                      <SongCard videoId={song.id} title={song.title} artist={song.artist} />
+                      <SongCard
+                        videoId={song.id}
+                        title={song.title}
+                        artist={song.artist}
+                      />
                       <span className="absolute -bottom-3 -right-2 rotate-6 rounded-full bg-bunting px-3 py-0.5 font-hand text-2xl leading-none text-ink ring-2 ring-chalk">
                         Besties
                       </span>
                     </div>
                     <div className="mt-auto flex justify-end">
-                      <Photo {...right.photoBottom} index={11} rotate={-2} ratio="aspect-[5/4]" className="w-[40%]" tape tapeClass="-top-2 -left-3" />
+                      <Photo
+                        {...right.photoBottom}
+                        index={11}
+                        rotate={-2}
+                        ratio="aspect-[5/4]"
+                        className="w-[40%]"
+                        tape
+                        tapeClass="-top-2 -left-3"
+                      />
                     </div>
                   </Panel>
                 </Slot>
@@ -241,7 +346,10 @@ export default function Book({ data, phase, onOpen, onClose }) {
           >
             geser ke kanan →
           </p>
-          <nav aria-label="Halaman scrapbook" className="flex items-center justify-center">
+          <nav
+            aria-label="Halaman scrapbook"
+            className="flex items-center justify-center"
+          >
             {TABS.map((label, i) => {
               const active = index === i;
               return (

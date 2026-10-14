@@ -64,6 +64,8 @@ body {
   }
   .book-track.is-open::before {
     opacity: 1;
+    /* muncul setelah panel selesai terlipat keluar (bukan saat masih kosong) */
+    transition-delay: 1.9s;
   }
 }
 
@@ -75,6 +77,24 @@ body {
   .panel-shadow {
     box-shadow: none;
   }
+}
+
+/* lipatan panel 2 dan 3 (Z-fold): berputar dari garis lipat di tepi kiri.
+   Hanya `transform` yang dianimasikan, jadi ringan (dikerjakan compositor). */
+.fold {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform var(--fold-dur, 800ms) var(--fold-ease, cubic-bezier(0.5, 0.05, 0.25, 1))
+    var(--fold-delay, 0ms);
+}
+.fold-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0.12));
+  transition: opacity var(--fold-dur, 800ms) ease var(--fold-delay, 0ms);
 }
 
 /* equalizer di kartu lagu */

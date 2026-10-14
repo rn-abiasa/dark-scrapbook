@@ -71,10 +71,26 @@ function Viewer({ items, index, onClose, onStep }) {
 
       {many && (
         <>
-          <button type="button" aria-label="Foto sebelumnya" className={`${navBtn} left-2 sm:left-5`} onClick={(e) => { e.stopPropagation(); onStep(-1); }}>
+          <button
+            type="button"
+            aria-label="Foto sebelumnya"
+            className={`${navBtn} z-5 left-2 sm:left-5`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onStep(-1);
+            }}
+          >
             ‹
           </button>
-          <button type="button" aria-label="Foto berikutnya" className={`${navBtn} right-2 sm:right-5`} onClick={(e) => { e.stopPropagation(); onStep(1); }}>
+          <button
+            type="button"
+            aria-label="Foto berikutnya"
+            className={`${navBtn} z-5 right-2 sm:right-5`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onStep(1);
+            }}
+          >
             ›
           </button>
         </>
@@ -85,7 +101,11 @@ function Viewer({ items, index, onClose, onStep }) {
         onClick={(e) => e.stopPropagation()}
       >
         {item.src ? (
-          <img src={item.src} alt={item.alt || ""} className="max-h-[76dvh] w-auto max-w-full object-contain" />
+          <img
+            src={item.src}
+            alt={item.alt || ""}
+            className="max-h-[76dvh] w-auto max-w-full object-contain"
+          />
         ) : (
           <div
             className="grid aspect-[4/5] w-[min(78vw,400px)] place-items-center font-hand text-4xl text-chalk/70"
@@ -131,7 +151,10 @@ export function LightboxProvider({ items, children }) {
     <LightboxContext.Provider value={value}>
       {children}
       {index !== null &&
-        createPortal(<Viewer items={items} index={index} onClose={close} onStep={step} />, document.body)}
+        createPortal(
+          <Viewer items={items} index={index} onClose={close} onStep={step} />,
+          document.body,
+        )}
     </LightboxContext.Provider>
   );
 }
