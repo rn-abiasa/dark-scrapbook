@@ -1,12 +1,83 @@
 @import "tailwindcss";
 
-:root {
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  --color-ink: #141312;
+  --color-night: #0b0a09;
+  --color-chalk: #ece7dc;
+  --color-bunting: #e9b6bf;
+  --color-wing: #e2b13c;
+  --color-sticker: #8ea6bd;
+  --font-hand: "Reenie Beanie", "Segoe Print", cursive;
+  --font-type: "Special Elite", "Courier New", monospace;
+}
 
+:root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  background: var(--color-night);
+  color: var(--color-chalk);
+  font-family: var(--font-type);
+}
+
+/* kertas hitam bertekstur halus */
+.paper {
+  background-color: var(--color-ink);
+  background-image:
+    radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.035), transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* jalur geser panel: mobile = swipe, desktop = 3 panel berdampingan */
+.book-track {
+  padding-inline: max(6vw, calc(50vw - 220px));
+  scrollbar-width: none;
+}
+.book-track::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .book-track {
+    padding-inline: 2rem;
+  }
+}
+
+@keyframes book-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.book-in {
+  animation: book-in 650ms ease-out both;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-bunting);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
