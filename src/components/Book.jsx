@@ -27,7 +27,10 @@ function Slot({ i, isOpen, delayClose = 0, delayOpen = 0, children }) {
         <div
           className="fold relative flex min-h-0 flex-1 flex-col"
           data-open={isOpen}
-          style={{ "--d-close": `${delayClose}ms`, "--d-open": `${delayOpen}ms` }}
+          style={{
+            "--d-close": `${delayClose}ms`,
+            "--d-open": `${delayOpen}ms`,
+          }}
         >
           {children}
           {/* bayangan lipatan: gelap saat terlipat, terang saat terbuka (hanya animasi opacity) */}
@@ -191,7 +194,7 @@ export default function Book({ data, isOpen, onOpen, onClose }) {
                     />
                     <TimelineSticker
                       data={timeline}
-                      className="absolute bottom-[2.778cqw] right-[2.778cqw]"
+                      className="absolute bottom-[7.778cqw] right-[-1.778cqw]"
                     />
                   </div>
                 </Panel>
@@ -237,7 +240,7 @@ export default function Book({ data, isOpen, onOpen, onClose }) {
                       />
                     ))}
                   </div>
-                  <div className="mt-auto space-y-[1.111cqw]">
+                  <div className="mt-5 space-y-[1.111cqw]">
                     <p className="flex items-center gap-[1.111cqw] font-type text-[3.333cqw] text-chalk/75">
                       <Heart className="w-[4.444cqw] shrink-0" /> {center.call}
                     </p>
@@ -284,7 +287,7 @@ export default function Book({ data, isOpen, onOpen, onClose }) {
                       Besties
                     </span>
                   </div>
-                  <div className="mt-auto flex items-end justify-between">
+                  <div className="flex items-end justify-between">
                     <GardenSticker
                       data={garden}
                       className="mb-[2.222cqw] ml-[3.333cqw]"

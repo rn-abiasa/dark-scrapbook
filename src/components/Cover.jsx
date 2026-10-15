@@ -2,7 +2,10 @@ import Bunting from "./Bunting";
 import Tape from "./Tape";
 import { Butterfly, Flower, ScribbleCircle, Sparkle } from "./Doodles";
 
-const FACE = { backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" };
+const FACE = {
+  backfaceVisibility: "hidden",
+  WebkitBackfaceVisibility: "hidden",
+};
 const TORN =
   "polygon(0 0,100% 0,98% 30%,100% 55%,98% 80%,100% 100%,0 100%,2% 75%,0 50%,2% 25%)";
 
@@ -33,7 +36,7 @@ export default function Cover({ name, age, isOpen, onOpen }) {
           <Sparkle className="absolute left-[8.889cqw] top-[42%] w-[3.889cqw] text-chalk/80" />
           <Sparkle className="absolute bottom-[44.444cqw] right-[10cqw] w-[2.778cqw] text-chalk/70" />
 
-          <div className="relative flex h-full flex-col items-center justify-between px-[6.667cqw] pb-[10cqw] pt-[11.111cqw] text-center">
+          <div className="relative flex h-full flex-col items-center justify-around px-[6.667cqw] pb-[10cqw] pt-[11.111cqw] text-center">
             <div className="flex flex-col items-center" aria-hidden="true">
               <Bunting text="HAPPY" w={200} className="w-[55.556cqw]" />
               <Bunting
