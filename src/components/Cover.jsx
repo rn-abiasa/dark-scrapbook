@@ -8,68 +8,56 @@ const TORN =
 
 // Sampul ini menempel persis di atas panel pertama scrapbook (satu objek yang sama).
 // Saat dibuka, sampul berputar ke kiri dan memperlihatkan panel pertama di bawahnya.
-export default function Cover({ name, age, phase, onOpen }) {
-  const closed = phase === "closed";
-
+// Ayunan + seluruh timeline animasinya kini dikendalikan CSS lewat atribut
+// `data-open` (lihat .cover di index.css), bukan inline style dari JS.
+// Semua ukuran dalam cqw karena sampul selalu berada di dalam panel.
+export default function Cover({ name, age, isOpen, onOpen }) {
   return (
     <div
-      className="absolute inset-0 z-20"
-      inert={!closed}
-      style={{
-        perspective: "1800px",
-        opacity: closed ? 1 : 0,
-        // disembunyikan total setelah ayunan selesai agar tidak ikut dirender/di-composite
-        visibility: closed ? "visible" : "hidden",
-        // memudar hanya di akhir ayunan, saat sampul sudah tegak lurus layar.
-        // Saat menutup, sampul baru kembali setelah panel 2 dan 3 selesai terlipat.
-        transition: closed
-          ? "opacity 120ms ease 880ms, visibility 0s linear 880ms"
-          : "opacity 450ms ease 650ms, visibility 0s linear 1.1s",
-      }}
+      className="cover absolute inset-0 z-20"
+      data-open={isOpen}
+      inert={isOpen}
     >
-      <div
-        className="absolute inset-0"
-        style={{
-          transformStyle: "preserve-3d",
-          transformOrigin: "left center",
-          transform: closed ? "rotateY(0deg)" : "rotateY(-172deg)",
-          // buka: awal lebih responsif (tidak "lengket"), melambat di ujung; tutup: tetap seperti semula
-          transition: closed
-            ? "transform 1050ms cubic-bezier(0.55, 0.04, 0.25, 1) 900ms"
-            : "transform 1100ms cubic-bezier(0.3, 0.05, 0.2, 1)",
-        }}
-      >
+      <div className="cover-swing">
         <div
-          className="paper absolute inset-0 rounded-[3px] shadow-[0_24px_50px_rgba(0,0,0,0.6)]"
+          className="paper absolute inset-0 rounded-[3px] shadow-[0_6.667cqw_13.889cqw_rgba(0,0,0,0.6)]"
           style={FACE}
         >
           <div
             aria-hidden="true"
-            className="absolute inset-3 rounded-[2px] border border-dashed border-chalk/35"
+            className="absolute inset-[3.333cqw] rounded-[2px] border border-dashed border-chalk/35"
           />
-          <Tape className="-left-3 top-5" rotate={-38} />
-          <Butterfly className="absolute right-5 top-[46%] w-12 rotate-12" />
-          <Flower className="absolute bottom-24 left-4 w-12 -rotate-12" />
-          <Sparkle className="absolute left-8 top-[42%] w-3.5 text-chalk/80" />
-          <Sparkle className="absolute bottom-40 right-9 w-2.5 text-chalk/70" />
+          <Tape className="-left-[3.333cqw] top-[5.556cqw]" rotate={-38} />
+          <Butterfly className="absolute right-[5.556cqw] top-[46%] w-[13.333cqw] rotate-12" />
+          <Flower className="absolute bottom-[26.667cqw] left-[4.444cqw] w-[13.333cqw] -rotate-12" />
+          <Sparkle className="absolute left-[8.889cqw] top-[42%] w-[3.889cqw] text-chalk/80" />
+          <Sparkle className="absolute bottom-[44.444cqw] right-[10cqw] w-[2.778cqw] text-chalk/70" />
 
-          <div className="relative flex h-full flex-col items-center justify-between px-6 pb-9 pt-10 text-center">
+          <div className="relative flex h-full flex-col items-center justify-between px-[6.667cqw] pb-[10cqw] pt-[11.111cqw] text-center">
             <div className="flex flex-col items-center" aria-hidden="true">
-              <Bunting text="HAPPY" w={200} />
-              <Bunting text="BIRTHDAY" w={290} className="-mt-3" />
+              <Bunting text="HAPPY" w={200} className="w-[55.556cqw]" />
+              <Bunting
+                text="BIRTHDAY"
+                w={290}
+                className="-mt-[3.333cqw] w-[80.556cqw]"
+              />
             </div>
 
             <div className="relative">
-              <ScribbleCircle className="absolute -inset-x-7 -inset-y-4 h-[calc(100%+2rem)] w-[calc(100%+3.5rem)] text-chalk/70" />
-              <p className="relative font-hand text-[8.5rem] leading-[0.9]">{age}</p>
+              <ScribbleCircle className="absolute -inset-x-[7.778cqw] -inset-y-[4.444cqw] h-[calc(100%+8.889cqw)] w-[calc(100%+15.556cqw)] text-chalk/70" />
+              <p className="relative font-hand text-[37.778cqw] leading-[0.9]">
+                {age}
+              </p>
             </div>
 
-            <p className="font-type text-sm text-chalk/70">untuk {name}</p>
+            <p className="font-type text-[3.889cqw] text-chalk/70">
+              untuk {name}
+            </p>
 
             <button
               type="button"
               onClick={onOpen}
-              className="relative -rotate-2 bg-bunting px-10 py-2.5 font-hand text-4xl leading-none text-ink shadow-[0_3px_0_rgba(0,0,0,0.35)] transition-transform active:translate-y-px hover:rotate-0"
+              className="relative -rotate-2 bg-bunting px-[11.111cqw] py-[2.778cqw] font-hand text-[10cqw] leading-none text-ink shadow-[0_3px_0_rgba(0,0,0,0.35)] transition-transform active:translate-y-px hover:rotate-0"
               style={{ clipPath: TORN }}
             >
               Buka

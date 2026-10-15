@@ -1,16 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Book from "./components/Book";
 import { content } from "./data/content";
 
 export default function App() {
-  const [phase, setPhase] = useState("closed"); // closed -> opening -> open
-
-  useEffect(() => {
-    if (phase !== "opening") return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const t = setTimeout(() => setPhase("open"), reduce ? 0 : 1250);
-    return () => clearTimeout(t);
-  }, [phase]);
+  // Satu boolean. Animasi buka/tutup sepenuhnya dikendalikan CSS lewat
+  // atribut data-open (lihat .fold & .cover di index.css) -- tanpa setTimeout.
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <main className="grid min-h-dvh place-items-center overflow-x-clip">
@@ -19,9 +14,9 @@ export default function App() {
       </h1>
       <Book
         data={content}
-        phase={phase}
-        onOpen={() => setPhase("opening")}
-        onClose={() => setPhase("closed")}
+        isOpen={isOpen}
+        onOpen={() => setIsOpen(true)}
+        onClose={() => setIsOpen(false)}
       />
     </main>
   );

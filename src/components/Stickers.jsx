@@ -12,7 +12,7 @@ function Sticker({ label, rotate, onClick, className = "", children }) {
       onClick={onClick}
       aria-haspopup="dialog"
       aria-label={label}
-      className={`sticker sticker-hint relative shadow-[0_1px_1px_rgba(0,0,0,0.6)] active:scale-95 ${className}`}
+      className={`sticker sticker-hint relative shadow-[0_0.278cqw_0.278cqw_rgba(0,0,0,0.6)] active:scale-95 ${className}`}
       style={{ "--r": `${rotate}deg` }}
     >
       {children}
@@ -30,16 +30,16 @@ export function TimelineSticker({ data, className = "" }) {
         label={`Buka ${data.title}`}
         rotate={5}
         onClick={() => setOpen(true)}
-        className={`w-[104px] bg-chalk pb-2 text-ink ${className}`}
+        className={`w-[28.889cqw] bg-chalk pb-[2.222cqw] text-ink ${className}`}
       >
-        <span className="block bg-bunting py-0.5 font-type text-[10px] leading-none">kenangan</span>
-        <svg viewBox="0 0 90 30" className="mx-auto mt-1 h-7 w-[88%]" fill="none" aria-hidden="true">
+        <span className="block bg-bunting py-[0.556cqw] font-type text-[2.778cqw] leading-none">kenangan</span>
+        <svg viewBox="0 0 90 30" className="mx-auto mt-[1.111cqw] h-[7.778cqw] w-[88%]" fill="none" aria-hidden="true">
           <path d="M6 22C26 2 44 30 62 14s20-6 24-8" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 3" strokeLinecap="round" />
           <circle cx="6" cy="22" r="3" fill="currentColor" />
           <circle cx="44" cy="19" r="3" fill="currentColor" />
           <circle cx="85" cy="6" r="3.5" fill="#e9b6bf" stroke="currentColor" strokeWidth="1.2" />
         </svg>
-        <span className="mt-1 block px-1 font-hand text-[1.55rem] leading-[0.95]">{data.title}</span>
+        <span className="mt-[1.111cqw] block px-[1.111cqw] font-hand text-[6.889cqw] leading-[0.95]">{data.title}</span>
       </Sticker>
 
       <PaperDialog open={open} onClose={() => setOpen(false)} label={data.title}>
@@ -67,17 +67,17 @@ export function GardenSticker({ data, className = "" }) {
         label={`Buka ${data.title}`}
         rotate={-5}
         onClick={() => setOpen(true)}
-        className={`w-[96px] bg-chalk text-ink ${className}`}
+        className={`w-[26.667cqw] bg-chalk text-ink ${className}`}
       >
         <span
           aria-hidden="true"
-          className="block h-3 bg-bunting"
+          className="block h-[3.333cqw] bg-bunting"
           style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }}
         />
-        <span className="mx-auto -mt-0.5 block h-14 w-10">
+        <span className="mx-auto -mt-[0.556cqw] block h-[15.556cqw] w-[11.111cqw]">
           <Bloom />
         </span>
-        <span className="block px-1 pb-1.5 font-hand text-[1.45rem] leading-none">{data.title}</span>
+        <span className="block px-[1.111cqw] pb-[1.667cqw] font-hand text-[6.444cqw] leading-none">{data.title}</span>
       </Sticker>
 
       <PaperDialog open={open} onClose={() => setOpen(false)} label={data.title}>

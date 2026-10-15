@@ -12,7 +12,7 @@ export default function Photo({
   rotate = 0,
   ratio = "aspect-[4/5]",
   tape = false,
-  tapeClass = "-top-2 left-1/2 -translate-x-1/2",
+  tapeClass = "-top-[2.222cqw] left-1/2 -translate-x-1/2",
   className = "",
   style,
 }) {
@@ -21,7 +21,7 @@ export default function Photo({
 
   return (
     <figure
-      className={`relative flex flex-col bg-chalk p-1.5 shadow-[0_1px_1px_rgba(0,0,0,0.6)] ${className}`}
+      className={`relative flex flex-col bg-chalk p-[1.667cqw] shadow-[0_0.278cqw_0.278cqw_rgba(0,0,0,0.6)] ${className}`}
       style={{ transform: `rotate(${rotate}deg)`, ...style }}
     >
       {tape && <Tape className={tapeClass} rotate={rotate * -1.5 - 3} />}
@@ -35,7 +35,7 @@ export default function Photo({
           <img src={src} alt={alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
           <span
-            className="absolute inset-0 grid place-items-center font-hand text-2xl leading-none text-chalk/70"
+            className="absolute inset-0 grid place-items-center font-hand text-[6.667cqw] leading-none text-chalk/70"
             style={placeholderStyle(index)}
           >
             {label}
