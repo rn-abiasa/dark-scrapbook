@@ -4,7 +4,8 @@ import Cover from "./Cover";
 import { LightboxProvider } from "./Lightbox";
 import Photo from "./Photo";
 import SongCard from "./SongCard";
-import { Arrow, Butterfly, Flower, Heart, Plane, Sparkle } from "./Doodles";
+import { GardenSticker, TimelineSticker } from "./Stickers";
+import { Arrow, Butterfly, Flower, Heart, Sparkle } from "./Doodles";
 import {
   DESK_RATIO,
   PANEL_H,
@@ -106,7 +107,7 @@ const TILES = [
 ];
 
 export default function Book({ data, phase, onOpen, onClose }) {
-  const { name, age, song, left, center, right } = data;
+  const { name, age, song, left, center, right, timeline, garden } = data;
   const closed = phase === "closed";
   const { s, desktop, vw } = useFit();
   const trackRef = useRef(null);
@@ -227,8 +228,10 @@ export default function Book({ data, phase, onOpen, onClose }) {
                         tape
                         tapeClass="-top-2 -left-3"
                       />
-                      <Plane className="absolute bottom-2 right-4 w-9 -rotate-6 text-chalk/80" />
-                      <Heart className="absolute bottom-12 right-14 w-4 text-chalk/70" />
+                      <TimelineSticker
+                        data={timeline}
+                        className="absolute bottom-1 right-1"
+                      />
                     </div>
                   </Panel>
                   <Cover name={name} age={age} phase={phase} onOpen={onOpen} />
@@ -317,7 +320,8 @@ export default function Book({ data, phase, onOpen, onClose }) {
                         Besties
                       </span>
                     </div>
-                    <div className="mt-auto flex justify-end">
+                    <div className="mt-auto flex items-end justify-between">
+                      <GardenSticker data={garden} className="mb-2 ml-3" />
                       <Photo
                         {...right.photoBottom}
                         index={11}

@@ -56,4 +56,53 @@ export const content = {
     photoTop: { src: three, label: "Foto 11" },
     photoBottom: { src: four, label: "Foto 12" },
   },
+
+  // Garis waktu (maks. 5 momen, deskripsi singkat). Ganti dengan momen kalian.
+  timeline: {
+    intro: "Momen-momen kecil kita",
+    title: "Perjalanan kita",
+    items: [
+      {
+        date: "12 Maret 2022",
+        title: "Pertama kali ngobrol",
+        text: "Awalnya cuma balas story, lalu nggak berhenti sampai pagi.",
+      },
+      {
+        date: "2 Juni 2022",
+        title: "Ketemu pertama kali",
+        text: "Canggung banget, tapi pulangnya senyum-senyum sendiri.",
+      },
+      {
+        date: "14 Februari 2023",
+        title: "Resmi jadian",
+        text: "Hari yang nggak akan kami lupa, dan dia yang bilang duluan.",
+      },
+      {
+        date: "9 Oktober 2023",
+        title: "Liburan pertama",
+        text: "Nyasar berdua, tapi itu jadi bagian paling lucu.",
+      },
+      {
+        date: "Hari ini",
+        title: "Ulang tahunmu",
+        text: "Satu lagi cerita yang pengin aku tulis bareng kamu.",
+      },
+    ],
+  },
+
+  // Kebun mini: tiap bunga membawa satu pesan singkat (jumlah bunga = jumlah pesan, disarankan 6).
+  garden: {
+    intro: "Satu bunga untuk tiap alasan",
+    title: "Kebun mini",
+    hint: "Ketuk tanah untuk menanam bunga.",
+    finale: "kebunnya penuh",
+    flowers: [
+      "Kamu bikin hari biasa terasa spesial.",
+      "Tawamu itu hal favoritku.",
+      "Kamu selalu dengerin sampai habis.",
+      "Sama kamu, diam pun nyaman.",
+      "Kamu percaya sama aku, bahkan saat aku ragu.",
+      "Terima kasih sudah jadi kamu.",
+    ],
+  },
 };

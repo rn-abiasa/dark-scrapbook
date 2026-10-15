@@ -97,6 +97,57 @@ body {
   transition: opacity var(--fold-dur, 800ms) ease var(--fold-delay, 0ms);
 }
 
+/* garis waktu: tiap momen muncul bergantian (hanya opacity dan translate, elemen kecil) */
+.tl-item {
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity 400ms ease,
+    translate 400ms ease;
+}
+.tl-on .tl-item {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: var(--d, 0ms);
+}
+
+/* stiker yang bisa diketuk (membuka dialog kertas). Petunjuk goyang sekali-dua kali
+   setelah buku terbuka; hanya transform pada satu elemen kecil. */
+.sticker {
+  rotate: var(--r, 0deg);
+}
+.is-open .sticker-hint {
+  animation: sticker-wiggle 1.2s ease-in-out 2 2.2s;
+}
+@keyframes sticker-wiggle {
+  30% {
+    rotate: calc(var(--r, 0deg) - 5deg);
+  }
+  70% {
+    rotate: calc(var(--r, 0deg) + 5deg);
+  }
+}
+
+/* kebun mini: batang tumbuh, lalu kepala bunga mekar */
+.bloom-stem {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+  transition: transform 500ms ease-out;
+}
+.bloom-head {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(0);
+  transition: transform 500ms cubic-bezier(0.3, 1.5, 0.5, 1) 350ms;
+}
+.is-planted .bloom-stem {
+  transform: scaleY(1);
+}
+.is-planted .bloom-head {
+  transform: scale(1);
+}
+
 /* equalizer di kartu lagu */
 .eq-bar {
   display: block;

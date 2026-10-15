@@ -49,14 +49,6 @@ export function Heart({ className = "" }) {
   );
 }
 
-export function Plane({ className = "" }) {
-  return (
-    <svg viewBox="0 0 24 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M2 11 22 2l-7 18-4-7-9-2Zm9 2L22 2" />
-    </svg>
-  );
-}
-
 export function Arrow({ className = "" }) {
   return (
     <svg viewBox="0 0 26 28" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
